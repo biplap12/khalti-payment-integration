@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+
+.input-field {
+  @apply w-full p-3 border border-gray-200 rounded-md focus:ring-1 focus:ring-indigo-500;
+}
+
+.method-btn {
+  @apply flex-1 border rounded-md p-3 text-center transition;
+}
