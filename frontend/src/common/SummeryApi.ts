@@ -13,6 +13,22 @@ const SummaryApi = {
     url: "/api/auth/me",
     method: "get",
   },
+  khaltiInitiate: {
+    url: "/api/khalti/initiate",
+    method: "post",
+  },
+  products: {
+    url: "/api/products",
+    method: "get",
+  },
+  orders: {
+    url: "/api/orders",
+    method: "get",
+  },
+  khaltiVerify: {
+    url: "/api/khalti/verify",
+    method: "get",
+  },
   logout: {
     url: "/api/auth/logout",
     method: "post",

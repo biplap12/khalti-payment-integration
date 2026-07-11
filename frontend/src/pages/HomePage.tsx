@@ -21,6 +21,17 @@ const Home = () => {
                 className="text-gray-700 hover:text-indigo-600 font-medium transition">
                 Home
               </Link>
+              <Link
+                to="/orders"
+                className="text-gray-700 hover:text-indigo-600 font-medium transition">
+                Orders
+              </Link>
+
+              <Link
+                to="/cart"
+                className="text-gray-700 hover:text-indigo-600 font-medium transition">
+                Cart
+              </Link>
              
             </div>
             <div>

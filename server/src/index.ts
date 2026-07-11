@@ -6,6 +6,8 @@ import authRoutes from "./routes/authRoutes";
 import khaltiRoutes from "./routes/khaltiRoutes";
 import { securityMiddleware } from "./middleware/security";
 import { errorHandler } from "./middleware/errorHandler";
+import orderRouter from "./routes/ordersRoutes";
+import productRouter from "./routes/productRoutes";
 
 const app = express();
 
@@ -17,6 +19,8 @@ securityMiddleware(app);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/khalti", khaltiRoutes);
+app.use("/api/orders", orderRouter);
+app.use("/api/products", productRouter  );
 
 app.get("/", (req, res) => res.send("API running"));
 

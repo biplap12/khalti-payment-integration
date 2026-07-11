@@ -1,12 +1,28 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummeryApi";
-import type { Product } from "../data/products";
+import type { Product } from "../types/product.types";
 interface UserType {
   id: string;
   name: string;
   email: string;
   phone: string;
+  address?: string;
+  city?: string;
+  state?: string;
+}
+
+interface Order {
+  _id: string;
+  purchase_order_id: string;
+  purchase_order_name: string;
+  amount: number;
+  status: "Completed" | "Pending" | "Failed";
+  createdAt: string;
+}
+
+export interface CartItem extends Product {
+  quantity: number;
 }
 
 interface AuthContextType {
@@ -17,8 +33,19 @@ interface AuthContextType {
   loading: boolean;
   logout: () => void;
 
+  orders: Order[];
+  fetchOrders: () => Promise<void>;
+  setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
+
+  products: Product[];
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  fetchProducts: () => Promise<void>;
+
   selectedProduct: Product | null;
   setSelectedProduct: (product: Product | null) => void;
+
+  cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -30,8 +57,19 @@ export const AuthContext = createContext<AuthContextType>({
   loading: true,
   setIsAuthenticated: () => {},
 
+  orders: [],
+  fetchOrders: async () => {},
+  setOrders: () => {},
+
+  products: [],
+  setProducts: () => {},
+  fetchProducts: async () => {},
+
   selectedProduct: null,
   setSelectedProduct: () => {},
+
+  cart: [],
+  setCart: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -41,6 +79,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   // Check session on refresh
   useEffect(() => {
@@ -77,6 +118,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchOrders = async () => {
+    try {
+      const response = await Axios(SummaryApi.orders);
+
+      if (response.status === 200) {
+        setOrders(response.data);
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await Axios(SummaryApi.products);
+
+      if (response.status === 200) {
+        setProducts(response.data);
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchOrders();
+      fetchProducts();
+    }
+  }, [isAuthenticated, user]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -86,9 +158,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         setIsAuthenticated,
         loading,
-
+        orders,
+        setOrders,
+        fetchOrders,
         selectedProduct,
         setSelectedProduct,
+        products,
+        setProducts,
+        fetchProducts,
+        cart,
+        setCart,
       }}>
       {children}
     </AuthContext.Provider>

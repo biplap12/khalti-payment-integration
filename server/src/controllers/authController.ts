@@ -1,12 +1,19 @@
 import { Request, Response } from "express";
 import User from "../models/User";
 import { config } from "../config/env";
-import jwt from "jsonwebtoken";
 
-const createToken = (id: string, email: string) => {
-  return jwt.sign({ id, email }, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn,
-  });
+import jwt, { Secret, SignOptions } from "jsonwebtoken";
+
+const createToken = (id: string, email: string): string => {
+  const payload = { id, email };
+
+  return jwt.sign(
+    payload,
+    config.jwtSecret as Secret,
+    {
+      expiresIn: config.jwtExpiresIn,
+    } as SignOptions,
+  );
 };
 
 export const register = async (req: Request, res: Response) => {

@@ -1,38 +1,5 @@
-// import axios from "axios";
-
-// export interface InitiatePaymentResponse {
-//   paymentId: string;
-//   pidx: string;
-//   payment_url: string;
-// }
-
-// export interface VerifyPaymentResponse {
-//   message: string;
-//   status: "Pending" | "Completed" | "Failed";
-//   data: { status: string } | null | undefined;
-// }
-
-// export const initiatePayment = async (
-//   productId: string,
-//   amount: number,
-//   customerInfo?: { name?: string; email?: string; phone?: string },
-// ) => {
-//   const res = await axios.post<InitiatePaymentResponse>(
-//     "http://localhost:5000/api/khalti/initiate",
-//     { productId, amount, customer_info: customerInfo },
-//     { withCredentials: true },
-//   );
-//   return res.data;
-// };
-
-// export const verifyPayment = async (pidx: string) => {
-//   const res = await axios.get<VerifyPaymentResponse>(
-//     `http://localhost:5000/api/khalti/verify?pidx=${pidx}`,
-//   );
-//   return res.data;
-// };
-
 import axios from "axios";
+import SummaryApi from "../common/SummeryApi";
 
 export interface InitiatePaymentResponse {
   paymentId: string;
@@ -42,35 +9,59 @@ export interface InitiatePaymentResponse {
 
 export interface VerifyPaymentResponse {
   message: string;
-  status: "Pending" | "Completed" | "Failed";
-  data: { status: string } | null | undefined;
+  data: {
+    status: string;
+    pidx: string;
+    total_amount: number;
+    purchase_order_id: string;
+    purchase_order_name: string;
+    amount: number;
+    mobile: string;
+    transaction_id: string;
+  };
 }
 
-const getToken = () => cookieStore.get("token")?.value;
 export const initiatePayment = async (
   productId: string,
   amount: number,
-  customerInfo?: { name?: string; email?: string; phone?: string },
+  customerInfo: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  },
+  productDetails?: {
+    productId: string;
+    name: string;
+    price: number;
+    quantity: number;
+  }[],
 ) => {
-  const res = await axios.post<InitiatePaymentResponse>(
-    "http://localhost:5000/api/khalti/initiate",
-    { productId, amount, customer_info: customerInfo },
-    {
-      withCredentials: true, // send cookie if backend uses cookie-based auth
-    },
-  );
-  return res.data;
+  return (
+    await axios.post(
+      SummaryApi.khaltiInitiate.url,
+      {
+        productId,
+        amount,
+        customer_info: customerInfo,
+        product_details: productDetails,
+      },
+      {
+        withCredentials: true,
+      },
+    )
+  ).data;
 };
 
 export const verifyPayment = async (pidx: string) => {
-  const res = await axios.get<VerifyPaymentResponse>(
-    `http://localhost:5000/api/khalti/verify?pidx=${pidx}`,
+  const res = await axios.post<VerifyPaymentResponse>(
+    SummaryApi.khaltiVerify.url,
     {
-      withCredentials: true, // important if backend uses cookie auth
-      headers: {
-        Authorization: `Bearer ${getToken()}`, // JWT header
-      },
+      pidx,
+    },
+    {
+      withCredentials: true,
     },
   );
+
   return res.data;
 };

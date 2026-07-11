@@ -1,4 +1,3 @@
-
 import React, { useContext, useState, useEffect } from "react";
 import { initiatePayment } from "../api/khalti";
 import AxiosToastError from "../utils/AxiosErrors";
@@ -12,6 +11,7 @@ const PaymentPage: React.FC = () => {
     isAuthenticated,
     loading: userLoading,
     selectedProduct,
+    // orders,
   } = useContext(AuthContext);
 
   const [paymentMethod, setPaymentMethod] = useState<"wallet" | "cod">(
@@ -21,10 +21,11 @@ const PaymentPage: React.FC = () => {
   const [shipping, setShipping] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
-    address: "",
-    city: "",
-    state: "",
+    address: user?.address || "",
+    city: user?.city || "",
+    state: user?.state || "",
   });
+  //  const [ordersList, setOrdersList] = useState(orders || []);
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -82,15 +83,24 @@ const PaymentPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const data = await initiatePayment(
-        selectedProduct.id,
-        selectedProduct.price,
+    const data = await initiatePayment(
+      selectedProduct._id,
+      total, 
+      {
+        name: user?.name,
+        email: user?.email,
+        phone: shipping.phone,
+
+      },
+      [
         {
-          name: user?.name || "Guest User",
-          email: user?.email || "test@khalti.com",
-          phone: shipping.phone,
+          productId: selectedProduct._id,
+          name: selectedProduct.name,
+          price: selectedProduct.price,
+          quantity:selectedProduct.quantity || 1,
         },
-      );
+      ],
+    );
 
       window.location.href = data.payment_url;
     } catch (err: unknown) {
@@ -266,8 +276,8 @@ const PaymentPage: React.FC = () => {
             {loading
               ? "Processing..."
               : isAuthenticated
-              ? "Place Order"
-              : "Login to Pay"}
+                ? "Place Order"
+                : "Login to Pay"}
           </button>
         </div>
       </div>

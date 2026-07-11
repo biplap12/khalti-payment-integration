@@ -5,6 +5,6 @@ import { protect } from "../middleware/auth";
 const router = express.Router();
 
 router.post("/initiate", protect, initiateKhalti);
-router.get("/verify", verifyKhalti);
+router.post("/verify", protect, verifyKhalti);
 
 export default router;
